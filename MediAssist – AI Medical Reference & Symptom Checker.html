@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>MediAssist</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f4f8;color:#1a2b3c;min-height:100vh}
+  :root{--blue:#1a6fc4;--blue-light:#e8f1fb;--blue-mid:#3d8ef0;--border:#d0dce8;--text:#1a2b3c;--muted:#5a7184;--card:#fff;--bg:#f0f4f8}
+
+  /* NAV */
+  nav{background:#fff;border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100}
+  .logo{font-size:1.2rem;font-weight:700;color:var(--blue);letter-spacing:-0.3px}
+  .logo span{color:var(--text)}
+  .nav-links{display:flex;gap:1.5rem;align-items:center}
+  .nav-links a{font-size:0.85rem;color:var(--muted);text-decoration:none;cursor:pointer}
+  .nav-links a:hover{color:var(--blue)}
+  .mode-toggle{display:flex;background:var(--blue-light);border-radius:20px;padding:3px;gap:2px}
+  .mode-btn{padding:4px 14px;border-radius:16px;border:none;cursor:pointer;font-size:0.78rem;font-weight:500;background:transparent;color:var(--muted);transition:all .2s}
+  .mode-btn.active{background:var(--blue);color:#fff}
+
+  /* HERO */
+  .hero{background:linear-gradient(135deg,#1a6fc4 0%,#2d8ef0 100%);color:#fff;padding:3rem 2rem 2.5rem;text-align:center}
+  .hero h1{font-size:2rem;font-weight:700;margin-bottom:.5rem;letter-spacing:-0.5px}
+  .hero p{font-size:1rem;opacity:.88;max-width:500px;margin:0 auto 1.5rem}
+  .hero-badges{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+  .badge{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);color:#fff;padding:4px 12px;border-radius:20px;font-size:.75rem}
+
+  /* MAIN */
+  main{max-width:860px;margin:0 auto;padding:2rem 1.25rem}
+
+  /* TABS */
+  .tabs{display:flex;gap:.5rem;margin-bottom:1.5rem}
+  .tab{padding:8px 20px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:.88rem;font-weight:500;cursor:pointer;color:var(--muted);transition:all .2s}
+  .tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+
+  /* REGION BAR */
+  .region-bar{background:#fff;border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+  .region-bar label{font-size:.82rem;color:var(--muted);font-weight:500;white-space:nowrap}
+  .region-bar select{border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:.85rem;color:var(--text);background:#fff;cursor:pointer;flex:1;min-width:180px}
+
+  /* PANEL */
+  .panel{display:none}
+  .panel.active{display:block}
+
+  /* SEARCH CARD */
+  .search-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.25rem}
+  .search-card h2{font-size:1rem;font-weight:600;margin-bottom:1rem;color:var(--text)}
+  .input-row{display:flex;gap:.75rem}
+  .input-row input,.input-row textarea{flex:1;border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:.9rem;color:var(--text);background:#fff;outline:none;font-family:inherit}
+  .input-row input:focus,.input-row textarea:focus{border-color:var(--blue)}
+  textarea{resize:none;height:80px}
+  .btn-primary{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:.88rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s}
+  .btn-primary:hover{background:#1558a0}
+  .btn-primary:disabled{background:#a0b4c8;cursor:not-allowed}
+  .hint{font-size:.78rem;color:var(--muted);margin-top:.6rem}
+
+  /* SYMPTOM CHIPS */
+  .chips{display:flex;flex-wrap:wrap;gap:.4rem;margin:.75rem 0}
+  .chip{padding:4px 12px;background:var(--blue-light);color:var(--blue);border-radius:20px;font-size:.78rem;cursor:pointer;border:1px solid transparent;transition:all .2s;user-select:none}
+  .chip:hover{border-color:var(--blue)}
+  .chip.selected{background:var(--blue);color:#fff}
+
+  /* RESULT */
+  .result-area{margin-top:1.25rem}
+  .result-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+  .result-header{background:var(--blue-light);padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+  .result-header h3{font-size:1rem;font-weight:600;color:var(--blue)}
+  .result-tag{font-size:.72rem;background:var(--blue);color:#fff;padding:3px 10px;border-radius:20px}
+  .result-body{padding:1.25rem}
+  .result-body h4{font-size:.82rem;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin:1rem 0 .4rem}
+  .result-body h4:first-child{margin-top:0}
+  .result-body p,.result-body li{font-size:.88rem;line-height:1.7;color:var(--text)}
+  .result-body ul{padding-left:1.2rem}
+  .result-body li{margin-bottom:.25rem}
+  .med-card{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:.9rem 1rem;margin:.5rem 0}
+  .med-name{font-weight:600;font-size:.92rem;color:var(--text);margin-bottom:.5rem}
+  .med-row{display:grid;grid-template-columns:90px 1fr;font-size:.82rem;margin:.25rem 0;gap:.5rem}
+  .med-label{color:var(--muted);font-weight:500}
+  .disclaimer{font-size:.75rem;color:var(--muted);background:#fffbea;border:1px solid #f0e0a0;border-radius:8px;padding:.75rem 1rem;margin-top:1rem;line-height:1.5}
+  .loader{display:flex;align-items:center;gap:.75rem;padding:1.5rem;color:var(--muted);font-size:.88rem}
+  .dot-anim{display:flex;gap:4px}
+  .dot-anim span{width:6px;height:6px;background:var(--blue);border-radius:50%;animation:bounce .9s infinite}
+  .dot-anim span:nth-child(2){animation-delay:.2s}
+  .dot-anim span:nth-child(3){animation-delay:.4s}
+  @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+
+  /* FOOTER */
+  footer{text-align:center;padding:2rem;font-size:.78rem;color:var(--muted);border-top:1px solid var(--border);background:#fff;margin-top:2rem}
+  footer strong{color:var(--blue)}
+
+  @media(max-width:600px){
+    .hero h1{font-size:1.5rem}
+    .input-row{flex-direction:column}
+    .nav-links{gap:.75rem}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Medi<span>Assist</span></div>
+  <div class="nav-links">
+    <a onclick="switchTab('symptom')">Symptom Check</a>
+    <a onclick="switchTab('disease')">Disease Search</a>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="mPatient" onclick="setMode('patient')">Patient</button>
+      <button class="mode-btn" id="mClinician" onclick="setMode('clinician')">Clinician</button>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <h1>AI-Powered Medical Reference</h1>
+  <p>Check symptoms or search any disease — get diagnosis, treatment protocols & medication details based on your region's guidelines.</p>
+  <div class="hero-badges">
+    <span class="badge">WHO Global</span>
+    <span class="badge">ICMR India</span>
+    <span class="badge">NICE UK</span>
+    <span class="badge">CDC USA</span>
+    <span class="badge">EMA Europe</span>
+  </div>
+</div>
+
+<main>
+  <div class="tabs">
+    <button class="tab active" id="tab-symptom" onclick="switchTab('symptom')">Symptom Checker</button>
+    <button class="tab" id="tab-disease" onclick="switchTab('disease')">Disease Search</button>
+  </div>
+
+  <div class="region-bar">
+    <label>Treatment Guidelines:</label>
+    <select id="regionSelect">
+      <option value="WHO">🌍 WHO — Global Guidelines</option>
+      <option value="ICMR" selected>🇮🇳 ICMR — India (NMC)</option>
+      <option value="CDC">🇺🇸 CDC / AHA — United States</option>
+      <option value="NICE">🇬🇧 NICE — United Kingdom</option>
+      <option value="EMA">🇪🇺 EMA / ESC — Europe</option>
+      <option value="NHMRC">🇦🇺 NHMRC — Australia</option>
+    </select>
+  </div>
+
+  <!-- SYMPTOM PANEL -->
+  <div class="panel active" id="panel-symptom">
+    <div class="search-card">
+      <h2>Describe your symptoms</h2>
+      <div class="chips" id="chipArea">
+        <span class="chip" onclick="toggleChip(this)">Fever</span>
+        <span class="chip" onclick="toggleChip(this)">Headache</span>
+        <span class="chip" onclick="toggleChip(this)">Cough</span>
+        <span class="chip" onclick="toggleChip(this)">Chest pain</span>
+        <span class="chip" onclick="toggleChip(this)">Shortness of breath</span>
+        <span class="chip" onclick="toggleChip(this)">Fatigue</span>
+        <span class="chip" onclick="toggleChip(this)">Nausea</span>
+        <span class="chip" onclick="toggleChip(this)">Joint pain</span>
+        <span class="chip" onclick="toggleChip(this)">Rash</span>
+        <span class="chip" onclick="toggleChip(this)">Dizziness</span>
+        <span class="chip" onclick="toggleChip(this)">Abdominal pain</span>
+        <span class="chip" onclick="toggleChip(this)">Sore throat</span>
+      </div>
+      <div class="input-row">
+        <textarea id="symptomInput" placeholder="Or type your symptoms in detail, e.g. 'fever for 3 days with joint pain and rash'..."></textarea>
+      </div>
+      <div style="display:flex;align-items:center;gap:1rem;margin-top:.75rem;flex-wrap:wrap">
+        <button class="btn-primary" onclick="checkSymptoms()" id="btnSymptom">Analyse Symptoms</button>
+        <span class="hint">AI will suggest possible diagnoses based on your region's guidelines</span>
+      </div>
+    </div>
+    <div class="result-area" id="symptomResult"></div>
+  </div>
+
+  <!-- DISEASE PANEL -->
+  <div class="panel" id="panel-disease">
+    <div class="search-card">
+      <h2>Search a disease or condition</h2>
+      <div class="input-row">
+        <input type="text" id="diseaseInput" placeholder="e.g. Type 2 Diabetes, Hypertension, Tuberculosis, Malaria..." onkeydown="if(event.key==='Enter')searchDisease()"/>
+        <button class="btn-primary" onclick="searchDisease()" id="btnDisease">Search</button>
+      </div>
+      <div class="hint">Get full profile: diagnosis criteria, treatment protocols, medications with MOA, dosage & side effects</div>
+    </div>
+    <div class="result-area" id="diseaseResult"></div>
+  </div>
+</main>
+
+<footer>
+  <strong>MediAssist</strong> — AI-powered medical reference tool &nbsp;|&nbsp;
+  For informational purposes only. Always consult a qualified healthcare professional.<br>
+  Built by Niti &nbsp;|&nbsp; Powered by Claude AI &amp; OpenFDA
+</footer>
+
+<script>
+let mode = 'patient';
+
+function setMode(m){
+  mode = m;
+  document.getElementById('mPatient').classList.toggle('active', m==='patient');
+  document.getElementById('mClinician').classList.toggle('active', m==='clinician');
+}
+
+function switchTab(t){
+  ['symptom','disease'].forEach(x=>{
+    document.getElementById('panel-'+x).classList.toggle('active', x===t);
+    document.getElementById('tab-'+x).classList.toggle('active', x===t);
+  });
+}
+
+function toggleChip(el){el.classList.toggle('selected')}
+
+function getSelectedChips(){
+  return [...document.querySelectorAll('.chip.selected')].map(c=>c.textContent).join(', ');
+}
+
+function getRegion(){return document.getElementById('regionSelect').value}
+
+function showLoader(id){
+  document.getElementById(id).innerHTML = `<div class="loader"><div class="dot-anim"><span></span><span></span><span></span></div>Analysing with AI — please wait...</div>`;
+}
+
+function renderResult(containerId, html){
+  document.getElementById(containerId).innerHTML = html;
+}
+
+async function callClaude(prompt){
+  const res = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1000,
+      system: `You are MediAssist, a medical reference AI. Always respond ONLY with valid JSON. No markdown, no backticks, no preamble. The user mode is: ${mode}. ${mode==='patient'?'Use simple language, avoid jargon, be reassuring.':'Use clinical terminology, include diagnostic criteria, evidence-based protocols.'}`,
+      messages:[{role:'user',content:prompt}]
+    })
+  });
+  const data = await res.json();
+  const text = data.content.map(i=>i.text||'').join('');
+  const clean = text.replace(/```json|```/g,'').trim();
+  return JSON.parse(clean);
+}
+
+async function checkSymptoms(){
+  const chips = getSelectedChips();
+  const typed = document.getElementById('symptomInput').value.trim();
+  const symptoms = [chips, typed].filter(Boolean).join('. ');
+  if(!symptoms){alert('Please select or type at least one symptom.');return;}
+  const btn = document.getElementById('btnSymptom');
+  btn.disabled = true;
+  showLoader('symptomResult');
+  const region = getRegion();
+  const prompt = `Patient symptoms: ${symptoms}. Region/guideline: ${region}. 
+Respond ONLY with this JSON structure:
+{
+  "disclaimer": "short medical disclaimer",
+  "diagnoses": [
+    {
+      "name": "Condition name",
+      "likelihood": "High / Moderate / Low",
+      "description": "brief description",
+      "when_to_see_doctor": "urgency note",
+      "treatment_summary": "brief treatment based on ${region} guidelines",
+      "guideline_source": "e.g. ICMR 2023"
+    }
+  ]
+}
+Return 2-3 most likely diagnoses only.`;
+  try{
+    const d = await callClaude(prompt);
+    let html = `<div class="result-card"><div class="result-header"><h3>Possible Diagnoses</h3><span class="result-tag">${region} Guidelines</span></div><div class="result-body">`;
+    d.diagnoses.forEach(dx=>{
+      const col = dx.likelihood==='High'?'#c0392b':dx.likelihood==='Moderate'?'#e67e22':'#27ae60';
+      html += `<div class="med-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+          <div class="med-name">${dx.name}</div>
+          <span style="font-size:.75rem;font-weight:600;color:${col};background:${col}18;padding:2px 10px;border-radius:20px">${dx.likelihood} Likelihood</span>
+        </div>
+        <div class="med-row"><span class="med-label">Overview</span><span>${dx.description}</span></div>
+        <div class="med-row"><span class="med-label">Treatment</span><span>${dx.treatment_summary}</span></div>
+        <div class="med-row"><span class="med-label">See doctor</span><span>${dx.when_to_see_doctor}</span></div>
+        <div class="med-row"><span class="med-label">Source</span><span style="color:var(--blue)">${dx.guideline_source}</span></div>
+      </div>`;
+    });
+    html += `<div class="disclaimer">⚠️ ${d.disclaimer}</div></div></div>`;
+    renderResult('symptomResult', html);
+  }catch(e){
+    renderResult('symptomResult','<div class="disclaimer">Something went wrong. Please try again.</div>');
+  }
+  btn.disabled = false;
+}
+
+async function searchDisease(){
+  const q = document.getElementById('diseaseInput').value.trim();
+  if(!q){alert('Please enter a disease name.');return;}
+  const btn = document.getElementById('btnDisease');
+  btn.disabled = true;
+  showLoader('diseaseResult');
+  const region = getRegion();
+  const prompt = `Provide a complete medical reference for: "${q}". Region/guideline: ${region}.
+Respond ONLY with this JSON structure:
+{
+  "name": "Full disease name",
+  "also_known_as": "alternate names",
+  "overview": "concise description",
+  "diagnosis_criteria": "key diagnostic criteria as a single string",
+  "treatment_protocol": "step-by-step treatment per ${region} guidelines as a single string",
+  "guideline_source": "e.g. ICMR 2023 / NICE CG187",
+  "regional_note": "any region-specific notes or drug availability",
+  "medications": [
+    {
+      "name": "Drug name",
+      "class": "Drug class",
+      "moa": "Mechanism of action",
+      "dosage": "Standard dosage",
+      "side_effects": "Key side effects",
+      "available_in_region": true
+    }
+  ],
+  "disclaimer": "short disclaimer"
+}
+Include 2-4 key medications.`;
+  try{
+    const d = await callClaude(prompt);
+    let html = `<div class="result-card">
+      <div class="result-header">
+        <div><h3>${d.name}</h3>${d.also_known_as?`<span style="font-size:.78rem;color:var(--muted)">${d.also_known_as}</span>`:''}</div>
+        <span class="result-tag">${region} Guidelines</span>
+      </div>
+      <div class="result-body">
+        <h4>Overview</h4><p>${d.overview}</p>
+        <h4>Diagnosis Criteria</h4><p>${d.diagnosis_criteria}</p>
+        <h4>Treatment Protocol <span style="font-size:.75rem;color:var(--blue);font-weight:400">(${d.guideline_source})</span></h4>
+        <p>${d.treatment_protocol}</p>`;
+    if(d.regional_note){html+=`<p style="margin-top:.5rem;padding:.6rem .9rem;background:#e8f4fd;border-left:3px solid var(--blue);border-radius:0 6px 6px 0;font-size:.83rem;color:var(--muted)">📌 ${d.regional_note}</p>`;}
+    html += `<h4>Medications</h4>`;
+    d.medications.forEach(m=>{
+      html += `<div class="med-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+          <div class="med-name">${m.name} <span style="font-size:.75rem;color:var(--muted);font-weight:400">${m.class}</span></div>
+          ${!m.available_in_region?'<span style="font-size:.72rem;background:#fff3cd;color:#856404;padding:2px 8px;border-radius:20px">May not be available</span>':''}
+        </div>
+        <div class="med-row"><span class="med-label">MOA</span><span>${m.moa}</span></div>
+        <div class="med-row"><span class="med-label">Dosage</span><span>${m.dosage}</span></div>
+        <div class="med-row"><span class="med-label">Side effects</span><span>${m.side_effects}</span></div>
+      </div>`;
+    });
+    html += `<div class="disclaimer">⚠️ ${d.disclaimer}</div></div></div>`;
+    renderResult('diseaseResult', html);
+  }catch(e){
+    renderResult('diseaseResult','<div class="disclaimer">Something went wrong. Please try again.</div>');
+  }
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>
